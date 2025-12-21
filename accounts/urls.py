@@ -26,4 +26,8 @@ urlpatterns = [
     # Student Management (by Admin or HOD)
     path('add-student/', views.add_student, name='add_student'),
     path('list-student/', views.list_student, name='list_student'),
+    
+    # Teacher Student Management
+    path('teacher/add-student/', views.teacher_add_student, name='teacher_add_student'),
+    path('teacher/list-student/', views.teacher_list_student, name='teacher_list_student'),
 ]

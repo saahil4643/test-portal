@@ -3,53 +3,103 @@
 {% block title %}Student Dashboard - TestPortal{% endblock %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row">
-        <div class="col-md-12">
-            <h2>Welcome, {{ student.first_name }} {{ student.last_name }}!</h2>
-            <p class="text-muted">Student Dashboard</p>
+<div class="dashboard-container">
+    <!-- Header Section -->
+    <div class="dashboard-header">
+        <div class="header-content">
+            <div>
+                <h1>Student Dashboard</h1>
+                <p class="header-subtitle">Your Academic Profile</p>
+            </div>
+            <div class="user-info">
+                <div class="avatar">{{ student.first_name|first }}</div>
+                <div>
+                    <p class="user-name">{{ student.get_full_name }}</p>
+                    <p class="user-role">Student</p>
+                </div>
+            </div>
         </div>
     </div>
 
-    <!-- Student Profile Info -->
+    <!-- Quick Stats -->
     {% if student_profile %}
-    <div class="row mt-4">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Profile Information</h5>
+    <div class="quick-stats">
+        <div class="quick-stat">
+            <span class="stat-icon">🎓</span>
+            <div>
+                <p class="stat-label">Roll Number</p>
+                <p class="stat-value">{{ student_profile.roll_number }}</p>
+            </div>
+        </div>
+        <div class="quick-stat">
+            <span class="stat-icon">🏢</span>
+            <div>
+                <p class="stat-label">Department</p>
+                <p class="stat-value">{{ student_profile.department }}</p>
+            </div>
+        </div>
+        <div class="quick-stat">
+            <span class="stat-icon">📅</span>
+            <div>
+                <p class="stat-label">Year</p>
+                <p class="stat-value">Year {{ student_profile.year }}</p>
+            </div>
+        </div>
+        <div class="quick-stat">
+            <span class="stat-icon">🏷️</span>
+            <div>
+                <p class="stat-label">Division</p>
+                <p class="stat-value">{{ student_profile.division }}</p>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Profile Card -->
+    {% if student_profile %}
+    <div class="content-card">
+        <h2 class="card-title">📋 Complete Profile Information</h2>
+        <div class="profile-grid">
+            <div class="profile-section">
+                <h3>Personal Details</h3>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">Full Name</span>
+                        <span class="info-value">{{ student.get_full_name }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Email</span>
+                        <span class="info-value">{{ student.email }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Username</span>
+                        <span class="info-value">{{ student.username }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Phone</span>
+                        <span class="info-value">{{ student_profile.phone }}</span>
+                    </div>
                 </div>
-                <div class="card-body">
-                    <table class="table">
-                        <tr>
-                            <td><strong>Name:</strong></td>
-                            <td>{{ student.first_name }} {{ student.last_name }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Email:</strong></td>
-                            <td>{{ student.email }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Roll Number:</strong></td>
-                            <td>{{ student_profile.roll_number }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Department:</strong></td>
-                            <td>{{ student_profile.department }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Year:</strong></td>
-                            <td>{{ student_profile.year }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Division:</strong></td>
-                            <td>{{ student_profile.division }}</td>
-                        </tr>
-                        <tr>
-                            <td><strong>Phone:</strong></td>
-                            <td>{{ student_profile.phone }}</td>
-                        </tr>
-                    </table>
+            </div>
+            <div class="profile-section">
+                <h3>Academic Details</h3>
+                <div class="profile-info">
+                    <div class="info-row">
+                        <span class="info-label">Roll Number</span>
+                        <span class="info-value">{{ student_profile.roll_number }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Department</span>
+                        <span class="info-value">{{ student_profile.department }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Year</span>
+                        <span class="info-value">Year {{ student_profile.year }}</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Division</span>
+                        <span class="info-value">{{ student_profile.division }}</span>
+                    </div>
                 </div>
             </div>
         </div>
@@ -57,14 +107,15 @@
     {% endif %}
 
     <!-- Quick Actions -->
-    <div class="row mt-4">
-        <div class="col-md-12">
-            <div class="card">
-                <div class="card-header bg-success text-white">
-                    <h5 class="mb-0">Quick Actions</h5>
-                </div>
-                <div class="card-body">
-                    <a href="{% url 'accounts:logout' %}" class="btn btn-danger">Logout</a>
+    <div class="content-card">
+        <h2 class="card-title">⚡ Quick Actions</h2>
+        <div class="action-grid">
+            <div class="action-group">
+                <h4>Account</h4>
+                <div class="button-group">
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-danger">
+                        <span class="btn-icon">🚪</span> Logout
+                    </a>
                 </div>
             </div>
         </div>
@@ -72,18 +123,238 @@
 </div>
 
 <style>
-    .stat-card {
-        border-left: 5px solid #007bff;
-        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
     }
-    .card-title {
-        color: #666;
-        font-size: 14px;
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .header-content {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .header-subtitle {
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .user-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        background: rgba(255, 255, 255, 0.1);
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+    }
+
+    .avatar {
+        width: 50px;
+        height: 50px;
+        background: white;
+        color: #10b981;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        font-weight: bold;
+    }
+
+    .user-name {
+        margin: 0;
+        font-weight: 600;
+    }
+
+    .user-role {
+        margin: 0;
+        font-size: 0.875rem;
+        opacity: 0.8;
+    }
+
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .quick-stat {
+        background: white;
+        padding: 1.25rem;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .stat-icon {
+        font-size: 2rem;
+    }
+
+    .stat-label {
+        margin: 0;
+        font-size: 0.75rem;
+        color: #999;
         text-transform: uppercase;
-        margin-bottom: 10px;
+        font-weight: 500;
     }
-    .display-4 {
-        color: #007bff;
+
+    .stat-value {
+        margin: 0.25rem 0 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #10b981;
+    }
+
+    .content-card {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .card-title {
+        font-size: 1.5rem;
+        margin: 0 0 1.5rem 0;
+        color: #2c3e50;
+    }
+
+    .profile-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .profile-section h3 {
+        font-size: 1.1rem;
+        color: #2c3e50;
+        margin: 0 0 1rem 0;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #10b981;
+    }
+
+    .profile-info {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+        border-left: 4px solid #10b981;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #2c3e50;
+        min-width: 120px;
+    }
+
+    .info-value {
+        color: #666;
+        flex: 1;
+        text-align: right;
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 2rem;
+    }
+
+    .action-group h4 {
+        margin: 0 0 1rem 0;
+        color: #2c3e50;
+        font-size: 1.1rem;
+    }
+
+    .button-group {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.25rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+        text-align: center;
+        justify-content: center;
+    }
+
+    .btn-danger {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        color: white;
+    }
+
+    .btn-danger:hover {
+        transform: translateX(3px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-icon {
+        font-size: 1.1rem;
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-header {
+            padding: 1.5rem;
+        }
+
+        .header-content {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: flex-start;
+        }
+
+        .user-info {
+            width: 100%;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.75rem;
+        }
+
+        .action-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .quick-stats {
+            grid-template-columns: repeat(2, 1fr);
+        }
     }
 </style>
 {% endblock %}

@@ -16,6 +16,16 @@ def admin_required(view_func):
     return wrapper
 
 
+def teacher_required(view_func):
+    """Decorator to check if user is teacher"""
+    def wrapper(request, *args, **kwargs):
+        if not request.user.is_authenticated or request.user.role != 'TEACHER':
+            messages.error(request, 'Teacher access required')
+            return redirect('accounts:login')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+
 @csrf_protect
 def create_admin(request):
     """Create a new admin user"""
@@ -289,10 +299,11 @@ def list_teacher(request):
 @csrf_protect
 @login_required(login_url='accounts:login')
 def add_student(request):
-    """Add Student by admin or HOD"""
+    """Add Student by admin, HOD, or teacher"""
     # Get department based on role
     department = None
     is_hod = request.user.role == 'HOD'
+    is_teacher = request.user.role == 'TEACHER'
     
     if is_hod:
         try:
@@ -300,6 +311,13 @@ def add_student(request):
             department = hod_profile.department
         except HODProfile.DoesNotExist:
             messages.error(request, 'HOD profile not found')
+            return redirect('accounts:dashboard')
+    elif is_teacher:
+        try:
+            teacher_profile = TeacherProfile.objects.get(user=request.user)
+            department = teacher_profile.department
+        except TeacherProfile.DoesNotExist:
+            messages.error(request, 'Teacher profile not found')
             return redirect('accounts:dashboard')
     
     if request.method == 'POST':
@@ -314,8 +332,8 @@ def add_student(request):
         year = request.POST.get('year', 1)
         division = request.POST.get('division')
         
-        # For admin, get department from form; for HOD, use their department
-        if is_hod:
+        # For admin, get department from form; for HOD/Teacher, use their department
+        if is_hod or is_teacher:
             post_department = department
         else:
             post_department = request.POST.get('department')
@@ -323,19 +341,19 @@ def add_student(request):
         # Validation
         if password != confirm_password:
             messages.error(request, 'Passwords do not match')
-            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod})
+            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod, 'is_teacher': is_teacher})
         
         if User.objects.filter(username=username).exists():
             messages.error(request, 'Username already exists')
-            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod})
+            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod, 'is_teacher': is_teacher})
         
         if User.objects.filter(email=email).exists():
             messages.error(request, 'Email already exists')
-            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod})
+            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod, 'is_teacher': is_teacher})
         
         if StudentProfile.objects.filter(roll_number=roll_number).exists():
             messages.error(request, 'Roll number already exists')
-            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod})
+            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod, 'is_teacher': is_teacher})
         
         try:
             user = User.objects.create_user(
@@ -359,14 +377,47 @@ def add_student(request):
             messages.success(request, f'Student {first_name} added successfully!')
             if is_hod:
                 return redirect('accounts:hod_dashboard')
+            elif is_teacher:
+                return redirect('accounts:teacher_dashboard')
             else:
                 return redirect('accounts:list_student')
         except Exception as e:
             messages.error(request, f'Error creating student: {str(e)}')
-            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod})
+            return render(request, 'accounts/add_student.html', {'department': department, 'is_hod': is_hod, 'is_teacher': is_teacher})
     
-    context = {'department': department, 'is_hod': is_hod}
+    context = {'department': department, 'is_hod': is_hod, 'is_teacher': is_teacher}
     return render(request, 'accounts/add_student.html', context)
+
+
+@login_required(login_url='accounts:login')
+@teacher_required
+def teacher_add_student(request):
+    """Teacher add student (shortcut route)"""
+    return add_student(request)
+
+
+@login_required(login_url='accounts:login')
+@teacher_required
+def teacher_list_student(request):
+    """List students for a teacher"""
+    try:
+        teacher_profile = TeacherProfile.objects.get(user=request.user)
+    except TeacherProfile.DoesNotExist:
+        messages.error(request, 'Teacher profile not found')
+        return redirect('accounts:dashboard')
+    
+    # Get students in the teacher's department and year
+    students = StudentProfile.objects.filter(
+        department=teacher_profile.department,
+        year=teacher_profile.year
+    )
+    
+    context = {
+        'students': students,
+        'teacher_profile': teacher_profile,
+        'student_count': len(students)
+    }
+    return render(request, 'accounts/teacher_list_student.html', context)
 
 
 @login_required(login_url='accounts:login')
