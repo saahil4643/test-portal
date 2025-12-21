@@ -1,0 +1,432 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}Test Results - {{ test.title }}{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <!-- Result Header -->
+    <div class="result-header {% if passed %}passed{% else %}failed{% endif %}">
+        <div class="result-icon">
+            {% if passed %}
+                ✅
+            {% else %}
+                ❌
+            {% endif %}
+        </div>
+        <h1>{% if passed %}Congratulations!{% else %}Good Effort!{% endif %}</h1>
+        <p class="result-message">
+            {% if passed %}
+                You have passed the test successfully.
+            {% else %}
+                You need to score higher to pass. Keep practicing!
+            {% endif %}
+        </p>
+    </div>
+
+    <!-- Score Summary -->
+    <div class="score-summary">
+        <div class="score-card">
+            <div class="score-label">Score</div>
+            <div class="score-value">{{ score }}/{{ total_marks }}</div>
+        </div>
+        <div class="score-card">
+            <div class="score-label">Percentage</div>
+            <div class="score-value">{{ percentage|floatformat:1 }}%</div>
+        </div>
+        <div class="score-card">
+            <div class="score-label">Status</div>
+            <div class="score-value">
+                {% if passed %}
+                    <span class="status-badge passed">PASSED</span>
+                {% else %}
+                    <span class="status-badge failed">FAILED</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Score Progress Bar -->
+    <div class="progress-section">
+        <div class="progress-label">
+            <span>Overall Performance</span>
+            <span class="progress-percentage">{{ percentage|floatformat:1 }}%</span>
+        </div>
+        <div class="progress-bar">
+            <div class="progress-fill {% if passed %}success{% else %}danger{% endif %}" style="width: {{ percentage }}%"></div>
+        </div>
+        <div class="progress-info">
+            <span class="passing-criteria">Passing Criteria: 40%</span>
+        </div>
+    </div>
+
+    <!-- Detailed Answers -->
+    <div class="answers-section">
+        <h2>📝 Your Answers</h2>
+        
+        {% for question in questions %}
+            {% with answer=answers|get_item:question.id %}
+                <div class="answer-box {% if answer.correct %}correct{% else %}incorrect{% endif %}">
+                    <div class="answer-header">
+                        <h3>Q{{ forloop.counter }}. {{ question.question_text }}</h3>
+                        <div class="answer-result">
+                            {% if answer.selected %}
+                                {% if answer.correct %}
+                                    <span class="badge badge-correct">✓ Correct</span>
+                                {% else %}
+                                    <span class="badge badge-incorrect">✗ Incorrect</span>
+                                {% endif %}
+                            {% else %}
+                                <span class="badge badge-unanswered">⊘ Unanswered</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="answer-details">
+                        <div class="user-answer">
+                            <strong>Your Answer:</strong>
+                            {% if answer.selected %}
+                                <span class="answer-text">{{ answer.selected }}</span>
+                            {% else %}
+                                <span class="answer-text unanswered">Not answered</span>
+                            {% endif %}
+                        </div>
+                        
+                        {% if not answer.correct %}
+                            <div class="correct-answer">
+                                <strong>Correct Answer:</strong>
+                                {% with correct_option=question.questionoption_set.filter:is_correct,True|first %}
+                                    <span class="answer-text">{{ correct_option.option_text }}</span>
+                                {% endwith %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endwith %}
+        {% endfor %}
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="{% url 'questions:available_tests' %}" class="btn btn-primary">
+            ← Back to Tests
+        </a>
+        <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+            Dashboard
+        </a>
+    </div>
+</div>
+
+<style>
+    .result-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .result-header {
+        text-align: center;
+        padding: 2.5rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        color: white;
+    }
+
+    .result-header.passed {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .result-header.failed {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        box-shadow: 0 8px 16px rgba(239, 68, 68, 0.3);
+    }
+
+    .result-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .result-header h1 {
+        font-size: 2.5rem;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .result-message {
+        font-size: 1.1rem;
+        margin: 0;
+        opacity: 0.95;
+    }
+
+    .score-summary {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .score-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-top: 4px solid #10b981;
+    }
+
+    .score-label {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        margin-bottom: 0.5rem;
+    }
+
+    .score-value {
+        font-size: 2rem;
+        color: #333;
+        font-weight: 700;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .status-badge.passed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status-badge.failed {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .progress-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    }
+
+    .progress-label {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: #333;
+    }
+
+    .progress-percentage {
+        color: #10b981;
+        font-size: 1.2rem;
+    }
+
+    .progress-bar {
+        width: 100%;
+        height: 12px;
+        background: #e5e7eb;
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-fill {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.3s ease;
+    }
+
+    .progress-fill.success {
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .progress-fill.danger {
+        background: linear-gradient(90deg, #ef4444 0%, #dc2626 100%);
+    }
+
+    .progress-info {
+        text-align: right;
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .answers-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+    }
+
+    .answers-section h2 {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: #333;
+    }
+
+    .answer-box {
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        transition: all 0.3s ease;
+    }
+
+    .answer-box.correct {
+        border-color: #10b981;
+        background: #f0fdf4;
+    }
+
+    .answer-box.incorrect {
+        border-color: #ef4444;
+        background: #fef2f2;
+    }
+
+    .answer-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 1rem;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+    }
+
+    .answer-header h3 {
+        color: #333;
+        font-size: 1rem;
+        margin: 0;
+        flex: 1;
+        line-height: 1.5;
+    }
+
+    .answer-result {
+        white-space: nowrap;
+    }
+
+    .badge {
+        padding: 0.35rem 0.8rem;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-correct {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .badge-incorrect {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    .badge-unanswered {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+
+    .answer-details {
+        display: grid;
+        gap: 1rem;
+    }
+
+    .user-answer, .correct-answer {
+        color: #555;
+    }
+
+    .user-answer strong, .correct-answer strong {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .answer-text {
+        display: block;
+        margin-top: 0.3rem;
+        padding: 0.5rem 0.8rem;
+        background: rgba(0, 0, 0, 0.03);
+        border-left: 3px solid #10b981;
+        border-radius: 4px;
+        padding-left: 0.8rem;
+    }
+
+    .answer-text.unanswered {
+        color: #999;
+        font-style: italic;
+    }
+
+    .correct-answer .answer-text {
+        border-left-color: #059669;
+        background: rgba(16, 185, 129, 0.05);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        padding-top: 2rem;
+        border-top: 2px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 0.8rem 2rem;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.02);
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+    }
+
+    @media (max-width: 768px) {
+        .result-container {
+            padding: 1rem;
+        }
+
+        .answer-header {
+            flex-direction: column;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+
+{# Template filter to get dictionary item #}
+{% comment %}
+This template uses a custom filter 'get_item' which needs to be added to template filters.
+Alternative: Use inline condition checks for answers.
+{% endcomment %}
+{% endblock %}

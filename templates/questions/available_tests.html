@@ -1,0 +1,592 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Available Tests{% endblock %}
+
+{% block content %}
+<div class="tests-container">
+    <div class="page-header">
+        <h1>📚 Tests & Exams</h1>
+        <p>Manage your upcoming and completed tests</p>
+    </div>
+
+    {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+            {% endfor %}
+        </div>
+    {% endif %}
+
+    <!-- ACTIVE TESTS - HAPPENING NOW -->
+    {% if active_tests %}
+        <div class="tests-section active-section">
+            <div class="section-header">
+                <h2>🔴 Active Tests (Happening Now)</h2>
+                <p class="section-subtitle">Take these tests now - they are currently open</p>
+            </div>
+            
+            <div class="tests-grid">
+                {% for test in active_tests %}
+                    <div class="test-card active-test">
+                        <div class="status-banner active-banner">ACTIVE NOW</div>
+                        <div class="test-header">
+                            <h3>{{ test.title }}</h3>
+                            <span class="subject-badge">{{ test.subject.name }}</span>
+                        </div>
+                        
+                        <div class="test-info">
+                            <div class="info-row">
+                                <span class="label">📝 Questions:</span>
+                                <span class="value">{{ test.question_set.count }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">⭐ Total Marks:</span>
+                                <span class="value">{{ test.marks }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">✅ Pass Marks:</span>
+                                <span class="value">{{ test.passing_marks }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">⏱️ Duration:</span>
+                                <span class="value">{{ test.duration_minutes }} mins</span>
+                            </div>
+                        </div>
+
+                        <div class="schedule-info active-schedule">
+                            <div class="schedule-time">
+                                <span class="time-label">Available Until:</span>
+                                <span class="time-value">{{ test.end_date|date:"d M, Y g:i A" }}</span>
+                            </div>
+                        </div>
+
+                        {% if test.description %}
+                            <div class="test-description">
+                                {{ test.description|truncatewords:20 }}
+                            </div>
+                        {% endif %}
+
+                        <a href="{% url 'questions:take_test' test.id %}" class="btn btn-primary btn-block btn-lg">
+                            ▶️ START TEST NOW →
+                        </a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- UPCOMING TESTS -->
+    {% if upcoming_tests %}
+        <div class="tests-section upcoming-section">
+            <div class="section-header">
+                <h2>⏳ Upcoming Tests</h2>
+                <p class="section-subtitle">Tests that will be available soon</p>
+            </div>
+            
+            <div class="tests-grid">
+                {% for test in upcoming_tests %}
+                    <div class="test-card upcoming-test">
+                        <div class="status-banner upcoming-banner">UPCOMING</div>
+                        <div class="test-header">
+                            <h3>{{ test.title }}</h3>
+                            <span class="subject-badge">{{ test.subject.name }}</span>
+                        </div>
+                        
+                        <div class="test-info">
+                            <div class="info-row">
+                                <span class="label">📝 Questions:</span>
+                                <span class="value">{{ test.question_set.count }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">⭐ Total Marks:</span>
+                                <span class="value">{{ test.marks }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">✅ Pass Marks:</span>
+                                <span class="value">{{ test.passing_marks }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">⏱️ Duration:</span>
+                                <span class="value">{{ test.duration_minutes }} mins</span>
+                            </div>
+                        </div>
+
+                        <div class="schedule-info upcoming-schedule">
+                            <div class="schedule-time">
+                                <span class="time-label">Starts:</span>
+                                <span class="time-value">{{ test.start_date|date:"d M, Y g:i A" }}</span>
+                            </div>
+                            <div class="schedule-time">
+                                <span class="time-label">Ends:</span>
+                                <span class="time-value">{{ test.end_date|date:"d M, Y g:i A" }}</span>
+                            </div>
+                        </div>
+
+                        {% if test.description %}
+                            <div class="test-description">
+                                {{ test.description|truncatewords:20 }}
+                            </div>
+                        {% endif %}
+
+                        <button class="btn btn-secondary btn-block" disabled title="Test hasn't started yet">
+                            🔒 Coming Soon
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- PAST TESTS (COMPLETED) -->
+    {% if past_tests %}
+        <div class="tests-section past-section">
+            <div class="section-header">
+                <h2>✅ Completed Tests</h2>
+                <p class="section-subtitle">Tests you have completed</p>
+            </div>
+            
+            <div class="tests-grid">
+                {% for test in past_tests %}
+                    <div class="test-card past-test">
+                        <div class="status-banner past-banner">COMPLETED</div>
+                        <div class="test-header">
+                            <h3>{{ test.title }}</h3>
+                            <span class="subject-badge">{{ test.subject.name }}</span>
+                        </div>
+                        
+                        <div class="test-info">
+                            <div class="info-row">
+                                <span class="label">📝 Questions:</span>
+                                <span class="value">{{ test.question_set.count }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">⭐ Total Marks:</span>
+                                <span class="value">{{ test.marks }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">✅ Pass Marks:</span>
+                                <span class="value">{{ test.passing_marks }}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="label">⏱️ Duration:</span>
+                                <span class="value">{{ test.duration_minutes }} mins</span>
+                            </div>
+                        </div>
+
+                        <div class="schedule-info past-schedule">
+                            <div class="schedule-time">
+                                <span class="time-label">Completed:</span>
+                                <span class="time-value">{{ test.end_date|date:"d M, Y" }}</span>
+                            </div>
+                        </div>
+
+                        {% if test.description %}
+                            <div class="test-description">
+                                {{ test.description|truncatewords:20 }}
+                            </div>
+                        {% endif %}
+
+                        <button class="btn btn-secondary btn-block" disabled>
+                            📋 Test Closed
+                        </button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    {% endif %}
+
+    <!-- NO TESTS MESSAGE -->
+    {% if not active_tests and not upcoming_tests and not past_tests %}
+        <div class="empty-state">
+            <div class="empty-icon">📭</div>
+            <h2>No Tests Available</h2>
+            <p>There are currently no tests scheduled for your department and year.</p>
+            <p class="empty-subtitle">Check back later or contact your teacher for more information.</p>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">← Back to Dashboard</a>
+        </div>
+    {% endif %}
+</div>
+
+<style>
+    .tests-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-header {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .page-header h1 {
+        color: #333;
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .page-header p {
+        color: #666;
+        font-size: 1.1rem;
+    }
+
+    /* Section Styling */
+    .tests-section {
+        margin-bottom: 3rem;
+        padding: 2rem;
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+
+    .section-header {
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 3px solid #e5e7eb;
+    }
+
+    .section-header h2 {
+        color: #333;
+        margin: 0 0 0.5rem 0;
+        font-size: 1.8rem;
+    }
+
+    .section-subtitle {
+        color: #666;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    /* Active Section */
+    .active-section {
+        border-left: 5px solid #10b981;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.05) 0%, rgba(16, 185, 129, 0.02) 100%);
+    }
+
+    .active-section .section-header {
+        border-bottom-color: #10b981;
+    }
+
+    /* Upcoming Section */
+    .upcoming-section {
+        border-left: 5px solid #f59e0b;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.05) 0%, rgba(245, 158, 11, 0.02) 100%);
+    }
+
+    .upcoming-section .section-header {
+        border-bottom-color: #f59e0b;
+    }
+
+    /* Past Section */
+    .past-section {
+        border-left: 5px solid #6b7280;
+        background: linear-gradient(135deg, rgba(107, 114, 128, 0.05) 0%, rgba(107, 114, 128, 0.02) 100%);
+    }
+
+    .past-section .section-header {
+        border-bottom-color: #6b7280;
+    }
+
+    .tests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(340px, 1fr));
+        gap: 2rem;
+    }
+
+    .test-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-left: 4px solid #e5e7eb;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .test-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+    }
+
+    /* Test Card Status */
+    .active-test {
+        border-left-color: #10b981;
+    }
+
+    .upcoming-test {
+        border-left-color: #f59e0b;
+    }
+
+    .past-test {
+        border-left-color: #6b7280;
+        opacity: 0.9;
+    }
+
+    .status-banner {
+        position: absolute;
+        top: 0;
+        right: 0;
+        padding: 0.5rem 1rem;
+        font-weight: 700;
+        font-size: 0.75rem;
+        letter-spacing: 1px;
+        color: white;
+    }
+
+    .active-banner {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    }
+
+    .upcoming-banner {
+        background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+    }
+
+    .past-banner {
+        background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%);
+    }
+
+    .test-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1rem;
+        gap: 1rem;
+        margin-top: 0.5rem;
+    }
+
+    .test-header h3 {
+        color: #333;
+        font-size: 1.3rem;
+        margin: 0;
+        flex: 1;
+    }
+
+    .subject-badge {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 0.3rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        white-space: nowrap;
+        font-weight: 500;
+    }
+
+    .test-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1.5rem;
+        border-bottom: 1px solid #eee;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .info-row .label {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .info-row .value {
+        color: #333;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .schedule-info {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .active-schedule {
+        background: rgba(16, 185, 129, 0.1);
+        border-left: 3px solid #10b981;
+    }
+
+    .upcoming-schedule {
+        background: rgba(245, 158, 11, 0.1);
+        border-left: 3px solid #f59e0b;
+    }
+
+    .past-schedule {
+        background: rgba(107, 114, 128, 0.1);
+        border-left: 3px solid #6b7280;
+    }
+
+    .schedule-time {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .schedule-time:last-child {
+        margin-bottom: 0;
+    }
+
+    .time-label {
+        color: #666;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .time-value {
+        color: #333;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .test-description {
+        color: #555;
+        font-size: 0.9rem;
+        line-height: 1.5;
+        margin-bottom: 1.5rem;
+        padding: 0.8rem;
+        background: #f9fafb;
+        border-radius: 6px;
+        border-left: 3px solid #ddd;
+    }
+
+    .btn-block {
+        width: 100%;
+        display: block;
+        text-align: center;
+        padding: 0.8rem !important;
+    }
+
+    .btn-lg {
+        padding: 1rem !important;
+        font-size: 1rem !important;
+        font-weight: 600 !important;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        border: none;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-block;
+        transition: all 0.2s ease;
+    }
+
+    .btn-primary:hover {
+        transform: scale(1.02);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+
+    .btn-secondary {
+        background: #9ca3af;
+        color: white;
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        border: none;
+        cursor: not-allowed;
+        text-decoration: none;
+        display: inline-block;
+        font-weight: 600;
+        opacity: 0.7;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        border-radius: 12px;
+        margin-top: 2rem;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h2 {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #666;
+        margin-bottom: 1rem;
+    }
+
+    .empty-subtitle {
+        color: #999;
+        font-size: 0.95rem !important;
+    }
+
+    .empty-state .btn-secondary {
+        cursor: pointer;
+        opacity: 1;
+    }
+
+    .messages {
+        margin-bottom: 2rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        border-left: 4px solid;
+    }
+
+    .alert-error {
+        background: #fee2e2;
+        color: #991b1b;
+        border-color: #dc2626;
+    }
+
+    .alert-success {
+        background: #dcfce7;
+        color: #166534;
+        border-color: #22c55e;
+    }
+
+    @media (max-width: 1024px) {
+        .tests-grid {
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        }
+    }
+
+    @media (max-width: 768px) {
+        .tests-container {
+            padding: 1rem;
+        }
+
+        .page-header h1 {
+            font-size: 1.8rem;
+        }
+
+        .tests-grid {
+            grid-template-columns: 1fr;
+            gap: 1.5rem;
+        }
+
+        .test-info {
+            grid-template-columns: 1fr;
+        }
+
+        .test-header {
+            flex-direction: column;
+        }
+
+        .test-header h3 {
+            font-size: 1.1rem;
+        }
+    }
+</style>
+{% endblock %}

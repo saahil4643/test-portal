@@ -91,6 +91,17 @@
                 </div>
             </div>
             <div class="action-group">
+                <h4>Test Management</h4>
+                <div class="button-group">
+                    <a href="{% url 'questions:create_test' %}" class="btn btn-primary">
+                        <span class="btn-icon">➕</span> Create Test
+                    </a>
+                    <a href="{% url 'questions:test_list' %}" class="btn btn-secondary">
+                        <span class="btn-icon">📋</span> View Tests
+                    </a>
+                </div>
+            </div>
+            <div class="action-group">
                 <h4>Account</h4>
                 <div class="button-group">
                     <a href="{% url 'accounts:logout' %}" class="btn btn-danger">

@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+
+{% block title %}Tests - TestPortal{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <div class="dashboard-header" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+                <h1>Tests</h1>
+                <p class="header-subtitle">Manage examinations</p>
+            </div>
+            <a href="{% url 'questions:create_test' %}" class="btn btn-light">
+                <span class="btn-icon">➕</span> Create Test
+            </a>
+        </div>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="content-card">
+        <form method="GET" style="display: flex; gap: 1rem; align-items: flex-end;">
+            <div style="flex: 1;">
+                <label for="subject">Filter by Subject:</label>
+                <select id="subject" name="subject" onchange="this.form.submit()">
+                    <option value="">-- All Subjects --</option>
+                    {% for subject in subjects %}
+                    <option value="{{ subject.id }}" {% if selected_subject|stringformat:"s" == subject.id|stringformat:"s" %}selected{% endif %}>
+                        {{ subject.name }} ({{ subject.code }})
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Tests List -->
+    {% if tests %}
+    <div class="tests-grid">
+        {% for test in tests %}
+        <div class="test-card">
+            <div class="test-header">
+                <div>
+                    <h3>{{ test.title }}</h3>
+                    <p class="test-subject">📚 {{ test.subject.name }}</p>
+                </div>
+                <span class="status-badge status-{{ test.status|lower }}">{{ test.get_status_display }}</span>
+            </div>
+
+            <div class="test-info">
+                <div class="info-item">
+                    <span class="label">Total Marks:</span>
+                    <span class="value">{{ test.total_marks }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Duration:</span>
+                    <span class="value">{{ test.duration_minutes }} mins</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Questions:</span>
+                    <span class="value">{{ test.questions.count }}</span>
+                </div>
+                <div class="info-item">
+                    <span class="label">Created By:</span>
+                    <span class="value">{{ test.created_by.get_full_name }}</span>
+                </div>
+            </div>
+
+            <div class="test-dates">
+                <p>📅 {{ test.start_date|date:"M d, Y H:i" }} → {{ test.end_date|date:"M d, Y H:i" }}</p>
+            </div>
+
+            <div class="test-actions">
+                <a href="{% url 'questions:test_detail' test.id %}" class="btn btn-small btn-primary">
+                    View Details
+                </a>
+                {% if can_edit %}
+                <a href="{% url 'questions:edit_test' test.id %}" class="btn btn-small btn-info">
+                    Edit
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="content-card">
+        <p style="text-align: center; color: #999; padding: 2rem;">
+            No tests found. <a href="{% url 'questions:create_test' %}" style="color: #10b981; text-decoration: none; font-weight: 600;">Create one now</a>
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .dashboard-header {
+        color: white;
+        padding: 2rem;
+        border-radius: 12px;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 16px rgba(16, 185, 129, 0.3);
+    }
+
+    .dashboard-header h1 {
+        margin: 0 0 0.5rem 0;
+        font-size: 2rem;
+    }
+
+    .header-subtitle {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .btn-light {
+        background: white;
+        color: #10b981;
+    }
+
+    .btn-light:hover {
+        background: #f0f0f0;
+    }
+
+    .content-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        margin-bottom: 2rem;
+    }
+
+    .content-card select {
+        padding: 0.5rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+
+    .tests-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 1.5rem;
+    }
+
+    .test-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s;
+        border-top: 4px solid #10b981;
+    }
+
+    .test-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .test-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+    }
+
+    .test-header h3 {
+        margin: 0 0 0.5rem 0;
+        color: #2c3e50;
+    }
+
+    .test-subject {
+        margin: 0;
+        color: #10b981;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .status-badge {
+        padding: 0.4rem 0.8rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .status-draft {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #059669;
+    }
+
+    .status-closed {
+        background: #fee2e2;
+        color: #dc2626;
+    }
+
+    .test-info {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin: 1rem 0;
+        padding: 1rem;
+        background: #f8f9fa;
+        border-radius: 6px;
+    }
+
+    .info-item {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .info-item .label {
+        color: #666;
+        font-size: 0.85rem;
+        font-weight: 500;
+    }
+
+    .info-item .value {
+        color: #2c3e50;
+        font-weight: 600;
+    }
+
+    .test-dates {
+        margin: 1rem 0;
+        padding: 0.75rem;
+        background: #fffbeb;
+        border-left: 3px solid #f59e0b;
+        border-radius: 4px;
+    }
+
+    .test-dates p {
+        margin: 0;
+        color: #92400e;
+        font-size: 0.9rem;
+    }
+
+    .test-actions {
+        display: flex;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-size: 0.9rem;
+        text-decoration: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        font-weight: 500;
+    }
+
+    .btn-small {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-primary {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #059669;
+    }
+
+    .btn-info {
+        background: #3b82f6;
+        color: white;
+    }
+
+    .btn-info:hover {
+        background: #2563eb;
+    }
+</style>
+{% endblock %}

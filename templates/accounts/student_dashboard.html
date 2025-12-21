@@ -111,6 +111,14 @@
         <h2 class="card-title">⚡ Quick Actions</h2>
         <div class="action-grid">
             <div class="action-group">
+                <h4>Tests & Exams</h4>
+                <div class="button-group">
+                    <a href="{% url 'questions:available_tests' %}" class="btn btn-primary">
+                        <span class="btn-icon">📝</span> Take Test
+                    </a>
+                </div>
+            </div>
+            <div class="action-group">
                 <h4>Account</h4>
                 <div class="button-group">
                     <a href="{% url 'accounts:logout' %}" class="btn btn-danger">
