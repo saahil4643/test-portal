@@ -1,0 +1,89 @@
+{% extends 'base.html' %}
+
+{% block title %}Student Dashboard - TestPortal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <h2>Welcome, {{ student.first_name }} {{ student.last_name }}!</h2>
+            <p class="text-muted">Student Dashboard</p>
+        </div>
+    </div>
+
+    <!-- Student Profile Info -->
+    {% if student_profile %}
+    <div class="row mt-4">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Profile Information</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table">
+                        <tr>
+                            <td><strong>Name:</strong></td>
+                            <td>{{ student.first_name }} {{ student.last_name }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Email:</strong></td>
+                            <td>{{ student.email }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Roll Number:</strong></td>
+                            <td>{{ student_profile.roll_number }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Department:</strong></td>
+                            <td>{{ student_profile.department }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Year:</strong></td>
+                            <td>{{ student_profile.year }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Division:</strong></td>
+                            <td>{{ student_profile.division }}</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Phone:</strong></td>
+                            <td>{{ student_profile.phone }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Quick Actions -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-header bg-success text-white">
+                    <h5 class="mb-0">Quick Actions</h5>
+                </div>
+                <div class="card-body">
+                    <a href="{% url 'accounts:logout' %}" class="btn btn-danger">Logout</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .stat-card {
+        border-left: 5px solid #007bff;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .card-title {
+        color: #666;
+        font-size: 14px;
+        text-transform: uppercase;
+        margin-bottom: 10px;
+    }
+    .display-4 {
+        color: #007bff;
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - TestPortal{% endblock %}
+
+{% block content %}
+<div style="text-align: center; margin: 3rem 0;">
+    <h1 style="color: white; margin-bottom: 2rem;">Welcome to TestPortal</h1>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+        <div class="card">
+            <h3>Login</h3>
+            <p style="color: #666; margin: 1rem 0;">Login as Admin, HOD, Teacher, or Student</p>
+            <a href="{% url 'accounts:login' %}" style="text-decoration: none;">
+                <button style="width: 100%;">Login</button>
+            </a>
+        </div>
+        <div class="card">
+            <h3>Create Admin</h3>
+            <p style="color: #666; margin: 1rem 0;">Create a new admin account</p>
+            <a href="{% url 'accounts:create_admin' %}" style="text-decoration: none;">
+                <button style="width: 100%;">Create Admin</button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

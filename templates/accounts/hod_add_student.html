@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Add Student - TestPortal{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Add Student to {{ department }}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{% url 'accounts:hod_add_student' %}">
+                        {% csrf_token %}
+                        
+                        <div class="form-group">
+                            <label for="first_name">First Name *</label>
+                            <input type="text" id="first_name" name="first_name" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="last_name">Last Name *</label>
+                            <input type="text" id="last_name" name="last_name" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="username">Username *</label>
+                            <input type="text" id="username" name="username" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="password">Password *</label>
+                            <input type="password" id="password" name="password" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="confirm_password">Confirm Password *</label>
+                            <input type="password" id="confirm_password" name="confirm_password" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="phone">Phone Number *</label>
+                            <input type="text" id="phone" name="phone" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="roll_number">Roll Number *</label>
+                            <input type="text" id="roll_number" name="roll_number" required class="form-control">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="year">Year *</label>
+                            <select id="year" name="year" required class="form-control">
+                                <option value="1">Year 1</option>
+                                <option value="2">Year 2</option>
+                                <option value="3">Year 3</option>
+                                <option value="4">Year 4</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="division">Division *</label>
+                            <input type="text" id="division" name="division" required class="form-control" placeholder="e.g., A, B, C">
+                        </div>
+                        
+                        <button type="submit" class="btn btn-success">Add Student</button>
+                        <a href="{% url 'accounts:hod_dashboard' %}" class="btn btn-secondary">Cancel</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

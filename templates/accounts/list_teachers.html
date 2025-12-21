@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block title %}Teachers List - TestPortal{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2>Teachers</h2>
+            <p style="color: #666;">Total Teachers: {{ total_teachers }}</p>
+        </div>
+        <a href="{% url 'accounts:add_teacher' %}" style="text-decoration: none;">
+            <button>+ Add New Teacher</button>
+        </a>
+    </div>
+    
+    {% if teachers %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Employee ID</th>
+                <th>Subject</th>
+                <th>Department</th>
+                <th>Experience</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for teacher in teachers %}
+            <tr>
+                <td><strong>{{ teacher.user.get_full_name }}</strong></td>
+                <td>{{ teacher.user.email }}</td>
+                <td>{{ teacher.employee_id }}</td>
+                <td>{{ teacher.subject }}</td>
+                <td>{{ teacher.department }}</td>
+                <td>{{ teacher.experience_years }} years</td>
+                <td>
+                    {% if teacher.approved_by_hod %}
+                    <span class="role-badge" style="background-color: #28a745; color: white;">Approved</span>
+                    {% else %}
+                    <span class="role-badge" style="background-color: #ffc107; color: #333;">Pending</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #666; padding: 2rem;">No teachers added yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

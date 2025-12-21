@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+
+{% block title %}Students List - TestPortal{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+        <div>
+            <h2>Students</h2>
+            <p style="color: #666;">Total Students: {{ total_students }}</p>
+        </div>
+        <a href="{% url 'accounts:add_student' %}" style="text-decoration: none;">
+            <button>+ Add New Student</button>
+        </a>
+    </div>
+    
+    {% if students %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Roll Number</th>
+                <th>Registration No</th>
+                <th>Email</th>
+                <th>Batch</th>
+                <th>Semester</th>
+                <th>Department</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td><strong>{{ student.user.get_full_name }}</strong></td>
+                <td>{{ student.roll_number }}</td>
+                <td>{{ student.registration_number }}</td>
+                <td>{{ student.user.email }}</td>
+                <td>{{ student.batch }}</td>
+                <td>{{ student.semester }}</td>
+                <td>{{ student.department }}</td>
+                <td>
+                    {% if student.is_active_student %}
+                    <span class="role-badge" style="background-color: #28a745; color: white;">Active</span>
+                    {% else %}
+                    <span class="role-badge" style="background-color: #6c757d; color: white;">Inactive</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p style="text-align: center; color: #666; padding: 2rem;">No students added yet.</p>
+    {% endif %}
+</div>
+{% endblock %}

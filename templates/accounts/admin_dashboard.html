@@ -1,0 +1,77 @@
+{% extends 'base.html' %}
+
+{% block title %}Admin Dashboard - TestPortal{% endblock %}
+
+{% block content %}
+<div>
+    <h2>Welcome, {{ admin.get_full_name }}!</h2>
+    <p style="color: #666; margin-bottom: 2rem;">Admin Dashboard</p>
+    
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-bottom: 2rem;">
+        <div class="stat-card">
+            <h3>{{ hod_count }}</h3>
+            <p>Total HODs</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ teacher_count }}</h3>
+            <p>Total Teachers</p>
+        </div>
+        <div class="stat-card">
+            <h3>{{ student_count }}</h3>
+            <p>Total Students</p>
+        </div>
+    </div>
+    
+    {% if admin_profile %}
+    <div class="card">
+        <h3>Admin Information</h3>
+        <table>
+            <tr>
+                <td><strong>Name:</strong></td>
+                <td>{{ admin.get_full_name }}</td>
+            </tr>
+            <tr>
+                <td><strong>Email:</strong></td>
+                <td>{{ admin.email }}</td>
+            </tr>
+            <tr>
+                <td><strong>Username:</strong></td>
+                <td>{{ admin.username }}</td>
+            </tr>
+            <tr>
+                <td><strong>Phone:</strong></td>
+                <td>{{ admin_profile.phone }}</td>
+            </tr>
+            <tr>
+                <td><strong>Role:</strong></td>
+                <td>{{ admin.get_role_display }}</td>
+            </tr>
+        </table>
+    </div>
+    {% endif %}
+    
+    <div class="card">
+        <h3>User Management</h3>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1.5rem;">
+            <a href="{% url 'accounts:add_hod' %}" style="text-decoration: none;">
+                <button style="width: 100%;">+ Add HOD</button>
+            </a>
+            <a href="{% url 'accounts:list_hod' %}" style="text-decoration: none;">
+                <button class="btn-secondary" style="width: 100%;">View HODs</button>
+            </a>
+            <a href="{% url 'accounts:add_teacher' %}" style="text-decoration: none;">
+                <button style="width: 100%;">+ Add Teacher</button>
+            </a>
+            <a href="{% url 'accounts:list_teacher' %}" style="text-decoration: none;">
+                <button class="btn-secondary" style="width: 100%;">View Teachers</button>
+            </a>
+            <a href="{% url 'accounts:add_student' %}" style="text-decoration: none;">
+                <button style="width: 100%;">+ Add Student</button>
+            </a>
+            <a href="{% url 'accounts:list_student' %}" style="text-decoration: none;">
+                <button class="btn-secondary" style="width: 100%;">View Students</button>
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
