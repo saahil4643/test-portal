@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Activate Fullscreen - {{ test.title }}</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            padding: 3rem 2rem;
+            max-width: 500px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            text-align: center;
+        }
+
+        .header-icon {
+            font-size: 4rem;
+            margin-bottom: 1.5rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 1rem;
+            font-size: 1.8rem;
+        }
+
+        .subtitle {
+            color: #666;
+            font-size: 0.95rem;
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+            border-left: 4px solid #f59e0b;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .warning-title {
+            color: #92400e;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .warning-list {
+            color: #92400e;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .warning-list li {
+            margin-left: 1.5rem;
+        }
+
+        .test-info {
+            background: #f3f4f6;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: left;
+            border: 2px solid #e5e7eb;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .info-row:last-child {
+            border-bottom: none;
+        }
+
+        .info-label {
+            color: #666;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #333;
+            font-weight: 700;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 1rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .fullscreen-icon {
+            display: inline-block;
+            font-size: 1.2rem;
+            margin-right: 0.5rem;
+        }
+
+        .features {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            text-align: left;
+        }
+
+        .features-title {
+            color: #333;
+            font-weight: 700;
+            margin-bottom: 1rem;
+            font-size: 0.95rem;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        .feature-icon {
+            color: #667eea;
+            font-weight: 700;
+            flex-shrink: 0;
+        }
+
+        .info-text {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 1rem;
+            border-radius: 8px;
+            margin-bottom: 1.5rem;
+            font-size: 0.9rem;
+            border-left: 4px solid #3b82f6;
+        }
+
+        .timer-notice {
+            color: #dc2626;
+            font-weight: 600;
+            margin-top: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 2rem 1.5rem;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+    <div class="container">
+        <div class="header-icon">🔐</div>
+        
+        <h1>Activate Fullscreen Mode</h1>
+        <p class="subtitle">
+            For security and to prevent cheating, this exam requires fullscreen mode.
+            Once you activate fullscreen and start the exam, you won't be able to exit.
+        </p>
+
+        <div class="info-text">
+            <strong>ℹ️ Important:</strong> Make sure no one else is in the room before proceeding.
+        </div>
+
+        <div class="test-info">
+            <div class="info-row">
+                <span class="info-label">📚 Test Name</span>
+                <span class="info-value">{{ test.title }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">📖 Subject</span>
+                <span class="info-value">{{ test.subject.name }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">📝 Questions</span>
+                <span class="info-value">{{ test.question_set.count }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">⏱️ Duration</span>
+                <span class="info-value">{{ test.duration_minutes }} minutes</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">⭐ Total Marks</span>
+                <span class="info-value">{{ test.marks }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">✅ Passing Marks</span>
+                <span class="info-value">{{ test.passing_marks }}</span>
+            </div>
+        </div>
+
+        <div class="features">
+            <div class="features-title">🛡️ Security Measures Active</div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Fullscreen mode required (cannot exit)</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Tab switching detection (3 warnings)</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Copy/paste prevention</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Developer tools blocked</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Real-time timer monitoring</span>
+            </div>
+            <div class="feature-item">
+                <span class="feature-icon">✓</span>
+                <span>Auto-submission after 3 warnings</span>
+            </div>
+        </div>
+
+        <div class="warning-box">
+            <div class="warning-title">⚠️ What You Need to Know:</div>
+            <ul class="warning-list">
+                <li><strong>No Tab Switching:</strong> Stay focused on the exam. Switching tabs will trigger a warning.</li>
+                <li><strong>No Minimizing:</strong> You cannot minimize the window during the exam.</li>
+                <li><strong>Locked Fullscreen:</strong> Once started, you cannot exit fullscreen until exam ends.</li>
+                <li><strong>Three Strikes:</strong> 3 suspicious activities = automatic exam submission.</li>
+                <li><strong>Instant Submission:</strong> If timer runs out, exam auto-submits immediately.</li>
+            </ul>
+        </div>
+
+        <div class="timer-notice">
+            ⏱️ Timer starts immediately after you enter fullscreen
+        </div>
+
+        <div class="action-buttons">
+            <a href="{% url 'questions:available_tests' %}" class="btn btn-secondary">
+                ← Back
+            </a>
+            <button class="btn btn-primary" id="fullscreenBtn" onclick="enterFullscreenAndStart()">
+                <span class="fullscreen-icon">⛔</span> ACTIVATE FULLSCREEN & START
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const testId = {{ test.id }};
+
+        function enterFullscreenAndStart() {
+            const elem = document.documentElement;
+            
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen()
+                    .then(() => {
+                        // Fullscreen activated, now redirect to exam
+                        setTimeout(() => {
+                            window.location.href = `/exam/test/${testId}/load/`;
+                        }, 500);
+                    })
+                    .catch(err => {
+                        alert('⚠️ Unable to activate fullscreen. Please ensure you have the necessary permissions.\n\nError: ' + err.message);
+                    });
+            } else if (elem.webkitRequestFullscreen) {
+                elem.webkitRequestFullscreen()
+                    .then(() => {
+                        setTimeout(() => {
+                            window.location.href = `/exam/test/${testId}/load/`;
+                        }, 500);
+                    })
+                    .catch(err => {
+                        alert('⚠️ Unable to activate fullscreen. Please ensure you have the necessary permissions.\n\nError: ' + err.message);
+                    });
+            } else {
+                alert('⚠️ Your browser does not support fullscreen mode.\n\nPlease use a modern browser (Chrome, Firefox, Safari, Edge).');
+            }
+        }
+
+        // Prevent user from just clicking back or refreshing
+        window.addEventListener('beforeunload', (e) => {
+            // This will show a warning if user tries to leave
+            // We'll only block it if they somehow get into the exam
+        });
+
+        // Keyboard shortcut prevention
+        document.addEventListener('keydown', (e) => {
+            // Allow normal navigation keys on this page
+            if (e.key === 'F11') {
+                e.preventDefault();
+            }
+        });
+    </script>
+</body>
+</html>

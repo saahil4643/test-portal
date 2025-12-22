@@ -1,0 +1,287 @@
+{% extends 'base.html' %}
+
+{% block title %}Exam Result - {{ test.title }}{% endblock %}
+
+{% block content %}
+<div class="result-container">
+    <div class="result-card">
+        <div class="result-header">
+            {% if result.is_passed %}
+                <div class="result-icon success">🎉</div>
+                <h1 class="success">Congratulations!</h1>
+            {% else %}
+                <div class="result-icon failed">📝</div>
+                <h1 class="failed">Result Submitted</h1>
+            {% endif %}
+        </div>
+
+        <div class="test-info">
+            <h2>{{ test.title }}</h2>
+            <p>{{ test.subject.name }}</p>
+        </div>
+
+        <div class="result-grid">
+            <div class="result-box">
+                <div class="result-label">Your Score</div>
+                <div class="result-value">{{ result.obtained_marks }}/{{ result.total_marks }}</div>
+                <div class="percentage" id="percentage">
+                    {{ result.obtained_marks|add:0|floatformat:0 }}%
+                </div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-label">Status</div>
+                {% if result.is_passed %}
+                    <div class="status passed">✓ PASSED</div>
+                {% else %}
+                    <div class="status failed">✗ NOT PASSED</div>
+                {% endif %}
+                <div class="passing-info">Passing: {{ test.passing_marks }} marks</div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-label">Correct Answers</div>
+                <div class="result-value correct">{{ result.correct_answers }}/{{ result.total_questions }}</div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-label">Wrong Answers</div>
+                <div class="result-value wrong">{{ result.wrong_answers }}</div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-label">Total Questions</div>
+                <div class="result-value">{{ result.total_questions }}</div>
+            </div>
+
+            <div class="result-box">
+                <div class="result-label">Submitted On</div>
+                <div class="result-value date">{{ result.submitted_at|date:"d M, Y h:i A" }}</div>
+            </div>
+        </div>
+
+        {% if result.obtained_marks >= test.passing_marks %}
+            <div class="congratulations-message">
+                <p>🌟 Well done! You have successfully completed the exam.</p>
+            </div>
+        {% else %}
+            <div class="improvement-message">
+                <p>📚 You need {{ test.passing_marks|add:0|floatformat:0|add:-result.obtained_marks|floatformat:0 }} more marks to pass.</p>
+                <p>Keep practicing and try again!</p>
+            </div>
+        {% endif %}
+
+        <div class="action-buttons">
+            <a href="{% url 'questions:available_tests' %}" class="btn btn-primary">
+                ← Back to Tests
+            </a>
+            <a href="{% url 'accounts:dashboard' %}" class="btn btn-secondary">
+                Dashboard →
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    .result-container {
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 2rem 1rem;
+    }
+
+    .result-card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+    }
+
+    .result-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .result-icon {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+    }
+
+    .result-header h1 {
+        font-size: 2rem;
+        margin: 0;
+    }
+
+    .result-header h1.success {
+        color: #10b981;
+    }
+
+    .result-header h1.failed {
+        color: #f59e0b;
+    }
+
+    .test-info {
+        text-align: center;
+        margin-bottom: 2rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .test-info h2 {
+        color: #333;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .test-info p {
+        color: #666;
+        margin: 0;
+    }
+
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .result-box {
+        background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+        padding: 1.5rem;
+        border-radius: 8px;
+        text-align: center;
+        border: 1px solid #e5e7eb;
+    }
+
+    .result-label {
+        color: #666;
+        font-size: 0.9rem;
+        font-weight: 500;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .result-value.correct {
+        color: #10b981;
+    }
+
+    .result-value.wrong {
+        color: #dc2626;
+    }
+
+    .result-value.date {
+        font-size: 1rem;
+    }
+
+    #percentage {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #667eea;
+    }
+
+    .status {
+        font-weight: 700;
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        display: inline-block;
+        margin-bottom: 0.5rem;
+    }
+
+    .status.passed {
+        background: #dcfce7;
+        color: #166534;
+    }
+
+    .status.failed {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .passing-info {
+        font-size: 0.85rem;
+        color: #666;
+    }
+
+    .congratulations-message {
+        background: linear-gradient(135deg, #dcfce7 0%, #bfdbfe 100%);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #10b981;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .congratulations-message p {
+        color: #166534;
+        font-weight: 600;
+        margin: 0;
+    }
+
+    .improvement-message {
+        background: linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%);
+        padding: 1.5rem;
+        border-radius: 8px;
+        border-left: 4px solid #f59e0b;
+        margin-bottom: 2rem;
+        text-align: center;
+    }
+
+    .improvement-message p {
+        color: #92400e;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 0.8rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.3s ease;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+    }
+
+    .btn-secondary {
+        background: #e5e7eb;
+        color: #333;
+    }
+
+    .btn-secondary:hover {
+        background: #d1d5db;
+    }
+
+    @media (max-width: 768px) {
+        .result-card {
+            padding: 1.5rem;
+        }
+
+        .result-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}

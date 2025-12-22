@@ -1,0 +1,1190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ test.title }} - Exam Interface</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            color: #333;
+            overflow: hidden;
+        }
+
+        .exam-container {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* HEADER */
+        .exam-header {
+            background: linear-gradient(135deg, #1f2937 0%, #111827 100%);
+            color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+            border-bottom: 3px solid #667eea;
+        }
+
+        .header-left h1 {
+            font-size: 1.5rem;
+            margin-bottom: 0.25rem;
+        }
+
+        .header-left p {
+            font-size: 0.9rem;
+            color: #d1d5db;
+        }
+
+        .header-right {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .timer {
+            background: rgba(239, 68, 68, 0.1);
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            border: 2px solid #ef4444;
+            text-align: center;
+        }
+
+        .timer-label {
+            font-size: 0.75rem;
+            color: #fecaca;
+            font-weight: 600;
+            letter-spacing: 1px;
+            margin-bottom: 0.25rem;
+        }
+
+        .timer-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #fca5a5;
+            font-family: 'Courier New', monospace;
+        }
+
+        .timer.warning .timer-value {
+            color: #ff6b6b;
+            animation: pulse 1s infinite;
+        }
+
+        .timer.danger .timer-value {
+            color: #ff1744;
+            animation: pulse 0.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .warning-badge {
+            background: #22c55e;
+            color: white;
+            padding: 0.75rem 1.25rem;
+            border-radius: 8px;
+            font-weight: 700;
+            text-align: center;
+            min-width: 140px;
+            font-size: 1.1rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            transition: all 0.3s ease;
+        }
+
+        .warning-badge.warning-1 {
+            background: #f59e0b;
+            color: white;
+            animation: warningPulse 1s infinite;
+        }
+
+        .warning-badge.warning-2 {
+            background: #ef4444;
+            color: white;
+            animation: warningPulse 0.5s infinite;
+        }
+
+        .warning-badge.warning-3 {
+            background: #dc2626;
+            color: white;
+            animation: warningPulse 0.3s infinite;
+        }
+
+        @keyframes warningPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        /* MAIN CONTENT */
+        .exam-content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        /* SIDEBAR - QUESTION NAVIGATOR */
+        .question-navigator {
+            width: 200px;
+            background: white;
+            border-right: 1px solid #e5e7eb;
+            overflow-y: auto;
+            padding: 1rem;
+        }
+
+        .nav-header {
+            font-weight: 700;
+            color: #333;
+            margin-bottom: 1rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+            font-size: 0.9rem;
+        }
+
+        .question-list {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        @media (max-width: 1200px) {
+            .question-list {
+                grid-template-columns: repeat(5, 1fr);
+            }
+        }
+
+        .question-btn {
+            aspect-ratio: 1;
+            border: 2px solid #e5e7eb;
+            background: white;
+            color: #666;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            font-size: 0.85rem;
+        }
+
+        .question-btn:hover {
+            border-color: #667eea;
+            color: #667eea;
+        }
+
+        .question-btn.answered {
+            background: #d1fae5;
+            border-color: #10b981;
+            color: #065f46;
+        }
+
+        .question-btn.current {
+            background: #667eea;
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 0 12px rgba(102, 126, 234, 0.4);
+        }
+
+        .question-btn.attempted {
+            background: #fef3c7;
+            border-color: #f59e0b;
+            color: #92400e;
+        }
+
+        /* EXAM AREA */
+        .exam-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: #f9fafb;
+            overflow-y: auto;
+        }
+
+        .question-container {
+            padding: 2rem;
+            background: white;
+            margin: 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .question-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 1.5rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb;
+        }
+
+        .question-number {
+            font-weight: 700;
+            color: #667eea;
+            font-size: 1.1rem;
+        }
+
+        .question-marks {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 0.25rem 0.75rem;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+        }
+
+        .question-text {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .options-container {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .option-label {
+            display: flex;
+            align-items: center;
+            padding: 1rem;
+            background: #f9fafb;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            user-select: none;
+        }
+
+        .option-label:hover {
+            background: #f3f4f6;
+            border-color: #667eea;
+        }
+
+        .option-label input[type="radio"] {
+            width: 20px;
+            height: 20px;
+            margin-right: 1rem;
+            cursor: pointer;
+            accent-color: #667eea;
+        }
+
+        .option-label input[type="radio"]:checked + .option-text {
+            color: #667eea;
+            font-weight: 600;
+        }
+
+        .option-label input[type="radio"]:checked {
+            accent-color: #10b981;
+        }
+
+        .option-label.selected {
+            background: #ecfdf5;
+            border-color: #10b981;
+        }
+
+        .option-text {
+            font-size: 1rem;
+            color: #374151;
+            flex: 1;
+        }
+
+        /* FOOTER BUTTONS */
+        .exam-footer {
+            display: flex;
+            gap: 1rem;
+            padding: 1.5rem 2rem;
+            background: white;
+            border-top: 1px solid #e5e7eb;
+            justify-content: space-between;
+        }
+
+        .btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .btn-secondary:hover {
+            background: #d1d5db;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+            color: white;
+        }
+
+        .btn-success:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* WARNINGS MODAL */
+        .warning-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(220, 38, 38, 0.85);
+            z-index: 99999;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .warning-modal.show {
+            display: flex;
+        }
+
+        .warning-content {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 16px;
+            text-align: center;
+            max-width: 450px;
+            box-shadow: 0 25px 80px rgba(220, 38, 38, 0.4);
+            border: 4px solid #dc2626;
+            animation: warningBounce 0.5s ease-out;
+        }
+
+        @keyframes warningBounce {
+            0% { transform: scale(0.5); opacity: 0; }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        .warning-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .warning-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 0.5rem;
+        }
+
+        .warning-message {
+            color: #666;
+            margin-bottom: 1.5rem;
+            line-height: 1.6;
+        }
+
+        .warning-count {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+
+        .warning-btn {
+            background: #667eea;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 1rem;
+        }
+
+        .warning-btn:hover {
+            background: #5568d3;
+        }
+
+        /* RESULT MODAL */
+        .result-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 9998;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .result-modal.show {
+            display: flex;
+        }
+
+        .result-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            max-width: 500px;
+            text-align: center;
+        }
+
+        .result-header {
+            margin-bottom: 1.5rem;
+        }
+
+        .result-icon {
+            font-size: 4rem;
+            margin-bottom: 1rem;
+        }
+
+        .result-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+        }
+
+        .result-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin: 1.5rem 0;
+            padding: 1.5rem 0;
+            border-top: 1px solid #e5e7eb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .result-item {
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+        }
+
+        .result-label {
+            font-size: 0.85rem;
+            color: #666;
+            margin-bottom: 0.25rem;
+        }
+
+        .result-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .percentage {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin: 1rem 0;
+            color: #10b981;
+        }
+
+        .percentage.fail {
+            color: #dc2626;
+        }
+
+        .pass-message {
+            font-size: 1.2rem;
+            color: #10b981;
+            margin-bottom: 1rem;
+        }
+
+        .fail-message {
+            font-size: 1.2rem;
+            color: #dc2626;
+            margin-bottom: 1rem;
+        }
+
+        .result-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            margin-top: 1rem;
+        }
+
+        /* Scrollbar Styling */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body>
+    {% csrf_token %}
+    
+    <!-- FULLSCREEN ACTIVATION OVERLAY -->
+    <div id="fullscreenOverlay" style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 10000; display: flex; align-items: center; justify-content: center;">
+        <div style="text-align: center; color: white; font-family: Arial, sans-serif;">
+            <div style="font-size: 3rem; margin-bottom: 1rem;">🔐</div>
+            <h2 style="font-size: 2rem; margin-bottom: 1rem;">Secure Exam Mode</h2>
+            <p style="font-size: 1.1rem; margin-bottom: 1rem; color: #ccc;">Click the button below to start your exam in fullscreen mode</p>
+            <p style="font-size: 0.9rem; margin-bottom: 2rem; color: #999;">Once started, fullscreen will be locked and cannot be exited</p>
+            <button id="startExamBtn" style="padding: 15px 40px; font-size: 1.1rem; background: #10b981; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: bold; transition: all 0.3s;">
+                ▶️ START EXAM IN FULLSCREEN
+            </button>
+            <p style="font-size: 0.85rem; margin-top: 2rem; color: #666;">(This requires your permission)</p>
+        </div>
+    </div>
+    
+    <div class="exam-container">
+        <!-- HEADER -->
+        <div class="exam-header">
+            <div class="header-left">
+                <h1>{{ test.title }}</h1>
+                <p>{{ test.subject.name }} • {{ total_questions }} Questions</p>
+            </div>
+            <div class="header-right">
+                <div class="warning-badge" id="warningBadge">
+                    ⚠️ Warnings: 0/3
+                </div>
+                <div class="timer" id="timer">
+                    <div class="timer-label">⏱️ TIME REMAINING</div>
+                    <div class="timer-value" id="timerValue">--:--</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MAIN CONTENT -->
+        <div class="exam-content">
+            <!-- QUESTION NAVIGATOR -->
+            <div class="question-navigator">
+                <div class="nav-header">📋 Questions</div>
+                <div class="question-list" id="questionList">
+                    {% for q in questions %}
+                        <button class="question-btn" data-question="{{ q.id }}" title="{{ q.question_text|truncatewords:5 }}">
+                            {{ forloop.counter }}
+                        </button>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- EXAM AREA -->
+            <div class="exam-area" id="examArea">
+                <div class="question-container">
+                    <form id="questionForm">
+                        {% for question in questions %}
+                            <div class="question-slide" data-question="{{ question.id }}" style="{% if forloop.first %}display: block;{% else %}display: none;{% endif %}">
+                                <div class="question-meta">
+                                    <span class="question-number">Question {{ forloop.counter }} / {{ total_questions }}</span>
+                                    <span class="question-marks">{{ question.marks }} marks</span>
+                                </div>
+
+                                <div class="question-text">{{ question.question_text }}</div>
+
+                                <div class="options-container">
+                                    {% for option in question.options.all %}
+                                        <label class="option-label">
+                                            <input type="radio" name="question_{{ question.id }}" value="{{ option.id }}" data-question="{{ question.id }}">
+                                            <span class="option-text">
+                                                <strong>{{ option.get_option_letter }}.</strong> {{ option.option_text }}
+                                            </span>
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </form>
+                </div>
+
+                <!-- FOOTER -->
+                <div class="exam-footer">
+                    <button class="btn btn-secondary" id="prevBtn" onclick="previousQuestion()">← Previous</button>
+                    <button class="btn btn-primary" id="nextBtn" onclick="nextQuestion()">Next →</button>
+                    <button class="btn btn-success" id="submitBtn" onclick="submitExam()">✓ Submit Exam</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- WARNING MODAL -->
+    <div class="warning-modal" id="warningModal">
+        <div class="warning-content">
+            <div class="warning-icon">⚠️</div>
+            <div class="warning-title">Suspicious Activity Detected</div>
+            <div class="warning-message" id="warningMessage">
+                You tried to switch tabs. Please focus on the exam.
+            </div>
+            <div class="warning-count" id="warningCount">1 / 3</div>
+            <button class="warning-btn" onclick="closeWarning()">Continue Exam</button>
+        </div>
+    </div>
+
+    <!-- RESULT MODAL -->
+    <div class="result-modal" id="resultModal">
+        <div class="result-content">
+            <div class="result-header">
+                <div class="result-icon" id="resultIcon">✓</div>
+                <div class="result-title" id="resultTitle">Exam Submitted</div>
+            </div>
+
+            <div id="resultDetails">
+                <div class="result-grid">
+                    <div class="result-item">
+                        <div class="result-label">Your Score</div>
+                        <div class="result-value" id="obtainedMarks">0</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Total Marks</div>
+                        <div class="result-value" id="totalMarks">{{ test.marks }}</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Correct Answers</div>
+                        <div class="result-value" id="correctAnswers">0</div>
+                    </div>
+                    <div class="result-item">
+                        <div class="result-label">Wrong Answers</div>
+                        <div class="result-value" id="wrongAnswers">0</div>
+                    </div>
+                </div>
+
+                <div class="percentage" id="percentage">0%</div>
+
+                <div id="passMessage" class="pass-message" style="display: none;">
+                    🎉 Congratulations! You passed the exam.
+                </div>
+                <div id="failMessage" class="fail-message" style="display: none;">
+                    📝 You need more practice. Try again!
+                </div>
+
+                <button class="result-btn btn btn-primary" onclick="goToDashboard()">
+                    Back to Dashboard
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const testId = {{ test.id }};
+        const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        let currentQuestion = 0;
+        let warningCount = 0;
+        let timeRemaining = {{ time_remaining }};
+        let isFullscreen = false;
+        let isSubmitted = false;
+        let isExamStarted = false; // Track if exam has actually started (after button click)
+        let examStartTime = null; // Track when exam started for grace period
+        let fullscreenLocked = true; // Fullscreen already active when page loaded
+        const questions = document.querySelectorAll('.question-slide');
+        const answers = {};
+        const GRACE_PERIOD = 3000; // 3 second grace period after exam starts (in ms)
+        let lastCheatingEventTime = {}; // Track last time each event was recorded to prevent duplicates
+
+        // =============== SECURITY MEASURES ===============
+
+        // Helper function to check if we're still in grace period
+        function isInGracePeriod() {
+            if (!examStartTime) return false;
+            const elapsed = Date.now() - examStartTime;
+            const inGrace = elapsed < GRACE_PERIOD;
+            if (inGrace) {
+                logEvent('DEBUG', `Grace period active (${elapsed}ms/${GRACE_PERIOD}ms)`);
+            }
+            return inGrace;
+        }
+
+        // LOGGING FUNCTION
+        function logEvent(level, message) {
+            const timestamp = new Date().toLocaleTimeString();
+            console.log(`[${timestamp}] [${level}] ${message}`);
+            // Also log to server via AJAX for persistent logging
+            fetch('/exam/api/log-event/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    test_id: testId,
+                    level: level,
+                    message: message
+                })
+            }).catch(() => {}); // Silently fail if logging endpoint doesn't exist
+        }
+
+        // 1. FULLSCREEN ENFORCEMENT (LOCKED - Cannot Exit)
+        function enterFullscreen() {
+            const elem = document.documentElement;
+            logEvent('INFO', 'Attempting to enter fullscreen');
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen()
+                    .then(() => {
+                        logEvent('INFO', 'Fullscreen entered successfully');
+                        // Hide the overlay once fullscreen is successful
+                        document.getElementById('fullscreenOverlay').style.display = 'none';
+                    })
+                    .catch(err => {
+                        logEvent('ERROR', `Fullscreen error: ${err.message}`);
+                        // Retry after 500ms
+                        setTimeout(() => {
+                            elem.requestFullscreen()
+                                .then(() => {
+                                    logEvent('INFO', 'Fullscreen entered on retry');
+                                    document.getElementById('fullscreenOverlay').style.display = 'none';
+                                })
+                                .catch(err2 => {
+                                    logEvent('ERROR', `Fullscreen retry failed: ${err2.message}`);
+                                    // Allow exam to continue even if fullscreen fails
+                                    setTimeout(() => {
+                                        document.getElementById('fullscreenOverlay').style.display = 'none';
+                                    }, 2000);
+                                });
+                        }, 500);
+                    });
+            } else {
+                logEvent('ERROR', 'Fullscreen API not supported');
+                // Hide overlay if fullscreen not supported
+                document.getElementById('fullscreenOverlay').style.display = 'none';
+            }
+        }
+
+        // 2. PREVENT FULLSCREEN EXIT (DISABLED - Allow students to use screen freely)
+        document.addEventListener('fullscreenchange', () => {
+            if (document.fullscreenElement && !isSubmitted) {
+                logEvent('INFO', 'Fullscreen mode active');
+            } else if (!document.fullscreenElement && isExamStarted) {
+                logEvent('INFO', 'Fullscreen mode exited (allowed)');
+            }
+        });
+
+        // 3. PREVENT TAB SWITCH & ENFORCE FULLSCREEN ON RETURN
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden && !isSubmitted && isExamStarted) {
+                logEvent('WARN', 'Tab switch attempt - Warning!');
+                recordCheatingAttempt('tab_switch', 'Student switched to another tab');
+            } else if (!document.hidden && !isSubmitted && isExamStarted) {
+                logEvent('INFO', 'Student returned to exam tab');
+            }
+        });
+
+        // 4. PREVENT WINDOW BLUR
+        window.addEventListener('blur', () => {
+            if (!isSubmitted && isExamStarted) {
+                logEvent('WARN', 'Window blur attempt - Warning!');
+                recordCheatingAttempt('window_blur', 'Student minimized/blurred window');
+            }
+        });
+
+        window.addEventListener('focus', () => {
+            if (!isSubmitted && isExamStarted) {
+                logEvent('DEBUG', 'Window regained focus');
+            }
+        });
+
+        // 5. PREVENT RIGHT CLICK
+        document.addEventListener('contextmenu', (e) => {
+            if (!isSubmitted && isExamStarted) {
+                e.preventDefault();
+                logEvent('WARN', 'Right-click attempt blocked');
+                recordCheatingAttempt('right_click', 'Right-click attempt');
+                return false;
+            }
+        });
+
+        // 6. PREVENT COPY/PASTE
+        document.addEventListener('copy', (e) => {
+            if (!isSubmitted && isExamStarted) {
+                e.preventDefault();
+                logEvent('WARN', 'Copy attempt blocked');
+                recordCheatingAttempt('copy_paste', 'Copy attempt');
+            }
+        });
+
+        document.addEventListener('paste', (e) => {
+            if (!isSubmitted && isExamStarted) {
+                e.preventDefault();
+                logEvent('WARN', 'Paste attempt blocked');
+                recordCheatingAttempt('copy_paste', 'Paste attempt');
+            }
+        });
+
+        // 7. PREVENT DEVELOPER TOOLS
+        let devToolsOpen = false;
+        setInterval(() => {
+            if (window.outerHeight - window.innerHeight > 200 || 
+                window.outerWidth - window.innerWidth > 200) {
+                if (!devToolsOpen && !isSubmitted && isExamStarted) {
+                    devToolsOpen = true;
+                    logEvent('ALERT', 'Developer tools detected');
+                    recordCheatingAttempt('developer_tools', 'Developer tools opened');
+                }
+            } else {
+                devToolsOpen = false;
+            }
+        }, 500);
+
+        // 8. PREVENT KEYBOARD SHORTCUTS
+        document.addEventListener('keydown', (e) => {
+            if (!isSubmitted && isExamStarted) {
+                // F12, Ctrl+Shift+I, Ctrl+Shift+J, Ctrl+Shift+C
+                if (e.key === 'F12' || 
+                    (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
+                    e.preventDefault();
+                    logEvent('ALERT', `Developer tools shortcut blocked: ${e.key}`);
+                    recordCheatingAttempt('developer_tools', 'Developer tools shortcut');
+                }
+            }
+        });
+
+        // RECORD CHEATING ATTEMPT
+        let isRecordingCheating = false; // Prevent overlapping requests
+        
+        function recordCheatingAttempt(type, message) {
+            // Don't record during grace period - these are false positives from fullscreen activation
+            if (isInGracePeriod()) {
+                logEvent('DEBUG', `Cheating attempt ignored during grace period: ${type}`);
+                return;
+            }
+            
+            // Prevent overlapping requests
+            if (isRecordingCheating) {
+                logEvent('DEBUG', `Skipping ${type} - another request in progress`);
+                return;
+            }
+            
+            // Global debounce: Don't record ANY cheating event within 3 seconds of the last one
+            const now = Date.now();
+            const lastAnyEvent = Math.max(...Object.values(lastCheatingEventTime), 0);
+            if (now - lastAnyEvent < 3000) {
+                logEvent('DEBUG', `Duplicate event ignored (${now - lastAnyEvent}ms since last warning)`);
+                return;
+            }
+            lastCheatingEventTime[type] = now;
+            
+            isRecordingCheating = true;
+            logEvent('WARN', `Cheating attempt recorded: ${type}`);
+            
+            fetch('/exam/api/cheating-attempt/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({
+                    test_id: testId,
+                    attempt_type: type
+                })
+            })
+            .then(res => res.json())
+            .then(data => {
+                isRecordingCheating = false;
+                if (data.success) {
+                    warningCount = data.warning_count;
+                    logEvent('INFO', `Warning count updated: ${warningCount}/3`);
+                    updateWarningBadge();
+                    
+                    if (data.force_submit) {
+                        logEvent('ALERT', 'Force submitting exam - 3 warnings reached');
+                        showForcedSubmitWarning();
+                        setTimeout(() => submitExam(), 3000);
+                    } else {
+                        showWarning(message, data.warning_count);
+                    }
+                }
+            })
+            .catch(err => {
+                isRecordingCheating = false;
+                logEvent('ERROR', `Failed to record cheating attempt: ${err.message}`);
+                console.error('Error:', err);
+            });
+        }
+
+        // =============== WARNING SYSTEM ===============
+
+        function showWarning(message, count) {
+            const modal = document.getElementById('warningModal');
+            document.getElementById('warningMessage').innerHTML = `
+                <strong style="color: #dc2626; font-size: 1.2rem;">⚠️ ${message}</strong>
+                <br><br>
+                <span style="color: #666;">Stay focused on your exam to avoid more warnings!</span>
+            `;
+            document.getElementById('warningCount').innerHTML = `
+                <span style="font-size: 3rem;">${count}</span> / 3 warnings
+            `;
+            modal.classList.add('show');
+            
+            // Play alert sound (optional - browser may block)
+            try {
+                const audio = new Audio('data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2teleyhRaZPBz4xFHE6AofHt0ng3Em6Z4//bgnxVcJ7f2J9qMUtwhNjmzJBCJVN0ns36lm8rNnGQ0/DJm1okZovB69qFSBNShr706ZdfR4a34viXZBVQn');
+                audio.volume = 0.5;
+                audio.play().catch(() => {});
+            } catch(e) {}
+            
+            // Auto-close after 4 seconds
+            setTimeout(() => {
+                modal.classList.remove('show');
+            }, 4000);
+        }
+
+        function showForcedSubmitWarning() {
+            const modal = document.getElementById('warningModal');
+            document.getElementById('warningMessage').innerHTML = `
+                <strong style="color: #dc2626; font-size: 1.3rem;">🚨 EXAM TERMINATED</strong>
+                <br><br>
+                <span style="color: #666;">You have received 3 warnings.<br>Your exam will be submitted automatically.</span>
+            `;
+            document.getElementById('warningCount').innerHTML = `
+                <span style="font-size: 4rem; color: #dc2626;">3</span> / 3 warnings
+            `;
+            modal.classList.add('show');
+        }
+
+        function closeWarning() {
+            document.getElementById('warningModal').classList.remove('show');
+            enterFullscreen();
+        }
+
+        function updateWarningBadge() {
+            const badge = document.getElementById('warningBadge');
+            badge.className = 'warning-badge'; // Reset classes
+            
+            if (warningCount >= 3) {
+                badge.classList.add('warning-3');
+                badge.innerHTML = `🚨 WARNINGS: ${warningCount}/3`;
+            } else if (warningCount >= 2) {
+                badge.classList.add('warning-2');
+                badge.innerHTML = `⚠️ Warnings: ${warningCount}/3`;
+            } else if (warningCount >= 1) {
+                badge.classList.add('warning-1');
+                badge.innerHTML = `⚠️ Warnings: ${warningCount}/3`;
+            } else {
+                badge.innerHTML = `✅ Warnings: 0/3`;
+            }
+        }
+
+        // =============== TIMER ===============
+
+        function updateTimer() {
+            const hours = Math.floor(timeRemaining / 3600);
+            const minutes = Math.floor((timeRemaining % 3600) / 60);
+            const seconds = timeRemaining % 60;
+
+            const timerValue = document.getElementById('timerValue');
+            timerValue.textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+            const timerElement = document.getElementById('timer');
+            timerElement.classList.remove('warning', 'danger');
+
+            if (timeRemaining <= 300) {
+                timerElement.classList.add('danger');
+            } else if (timeRemaining <= 900) {
+                timerElement.classList.add('warning');
+            }
+
+            if (timeRemaining <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('timerValue').textContent = '00:00:00';
+                submitExam();
+            }
+
+            timeRemaining--;
+        }
+
+        let timerInterval = null;
+        
+        // Start timer only when exam actually starts
+        function startTimer() {
+            updateTimer(); // Initial display
+            timerInterval = setInterval(updateTimer, 1000);
+            logEvent('INFO', 'Timer started');
+        }
+
+        // =============== CONTINUOUS FULLSCREEN ENFORCEMENT ===============
+        // Monitor and enforce fullscreen every second (but only after exam starts)
+        setInterval(() => {
+            if (!isSubmitted && fullscreenLocked && isExamStarted && !document.fullscreenElement) {
+                // Fullscreen lost - force re-entry
+                enterFullscreen();
+            }
+        }, 1000);
+
+        // =============== NAVIGATION ===============
+
+        function showQuestion(index) {
+            questions.forEach((q, i) => {
+                q.style.display = i === index ? 'block' : 'none';
+            });
+
+            const allBtns = document.querySelectorAll('.question-btn');
+            allBtns.forEach((btn, i) => {
+                btn.classList.remove('current');
+                if (i === index) btn.classList.add('current');
+            });
+
+            // Update button states
+            document.getElementById('prevBtn').disabled = index === 0;
+            document.getElementById('nextBtn').disabled = index === questions.length - 1;
+
+            currentQuestion = index;
+        }
+
+        function previousQuestion() {
+            if (currentQuestion > 0) {
+                showQuestion(currentQuestion - 1);
+            }
+        }
+
+        function nextQuestion() {
+            if (currentQuestion < questions.length - 1) {
+                showQuestion(currentQuestion + 1);
+            }
+        }
+
+        // Question button click
+        document.querySelectorAll('.question-btn').forEach((btn, index) => {
+            btn.addEventListener('click', () => showQuestion(index));
+        });
+
+        // Track answers
+        document.querySelectorAll('input[type="radio"]').forEach(input => {
+            input.addEventListener('change', (e) => {
+                const questionId = e.target.dataset.question;
+                const optionId = e.target.value;
+                
+                answers[questionId] = optionId;
+                logEvent('DEBUG', `Question ${questionId} - Selected option ${optionId}`);
+
+                // Update question button
+                const btn = document.querySelector(`.question-btn[data-question="${questionId}"]`);
+                btn.classList.add('answered');
+
+                // Highlight selected option
+                const label = e.target.parentElement;
+                const container = label.parentElement;
+                container.querySelectorAll('label').forEach(l => l.classList.remove('selected'));
+                label.classList.add('selected');
+            });
+        });
+
+        // Initialize
+        showQuestion(0);
+        
+        // Setup fullscreen button click handler
+        document.getElementById('startExamBtn').addEventListener('click', () => {
+            logEvent('INFO', 'User clicked START EXAM button - Entering fullscreen');
+            isExamStarted = true;
+            examStartTime = Date.now(); // Record when exam actually started
+            logEvent('INFO', 'EXAM STARTED - All security measures active');
+            startTimer(); // Start the timer now
+            enterFullscreen();
+        });
+
+        // =============== SUBMISSION ===============
+
+        function submitExam() {
+            if (isSubmitted) return;
+            
+            isSubmitted = true;
+            clearInterval(timerInterval);
+            logEvent('INFO', `Exam submitted - Answers: ${Object.keys(answers).length} questions answered`);
+
+            // Disable all interactive elements
+            document.querySelectorAll('input, button').forEach(el => el.disabled = true);
+
+            // Send answers to server
+            fetch(`/exam/test/${testId}/submit/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': csrfToken
+                },
+                body: JSON.stringify({ answers: answers })
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (data.success) {
+                    const result = data.result;
+                    logEvent('INFO', `Exam results received - Score: ${result.obtained_marks}/${result.total_marks}`);
+                    
+                    document.getElementById('obtainedMarks').textContent = result.obtained_marks;
+                    document.getElementById('totalMarks').textContent = result.total_marks;
+                    document.getElementById('correctAnswers').textContent = result.correct_answers;
+                    document.getElementById('wrongAnswers').textContent = result.wrong_answers;
+                    document.getElementById('percentage').textContent = result.percentage + '%';
+                    
+                    if (result.is_passed) {
+                        document.getElementById('resultIcon').textContent = '🎉';
+                        document.getElementById('resultTitle').textContent = 'Congratulations!';
+                        document.getElementById('passMessage').style.display = 'block';
+                        document.getElementById('percentage').classList.remove('fail');
+                    } else {
+                        document.getElementById('resultIcon').textContent = '📝';
+                        document.getElementById('resultTitle').textContent = 'Results Submitted';
+                        document.getElementById('failMessage').style.display = 'block';
+                        document.getElementById('percentage').classList.add('fail');
+                    }
+
+                    // Unlock fullscreen so user can exit
+                    fullscreenLocked = false;
+                    
+                    document.getElementById('resultModal').classList.add('show');
+                }
+            })
+            .catch(err => {
+                alert('Error submitting exam. Please try again.');
+                console.error(err);
+            });
+        }
+
+        function goToDashboard() {
+            // Unlock fullscreen so user can exit
+            fullscreenLocked = false;
+            if (document.fullscreenElement) {
+                document.exitFullscreen().catch(() => {});
+            }
+            window.location.href = '/accounts/dashboard/';
+        }
+
+        // Prevent leaving page
+        window.addEventListener('beforeunload', (e) => {
+            if (!isSubmitted) {
+                e.preventDefault();
+                e.returnValue = '';
+                return '';
+            }
+        });
+    </script>
+</body>
+</html>
